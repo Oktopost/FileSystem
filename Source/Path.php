@@ -26,12 +26,12 @@ class Path
 		{
 			return '';
 		}
-		else if ($source[1] == '/' && $source[2] == '/')
-		{ 
-			return '/';
+		else if ($source[1] == '/')
+		{
+			return $source[2] == '/' ? '/' : '//';
 		}
 		
-		return '//';
+		return '/';
 	}
 	
 	private static function fixSlashes(string $source, string $root): string
@@ -110,7 +110,9 @@ class Path
 	
 	public function exists(): bool
 	{
-		return Driver::file_exists($this->path);
+		return 
+			Driver::file_exists($this->path) || 
+			Driver::is_dir($this->path);
 	}
 	
 	public function isFile(): bool
@@ -126,6 +128,45 @@ class Path
 	public function isLink(): bool
 	{
 		return Driver::is_link($this->path);
+	}
+	
+	/**
+	 * @param bool $excludeSpecial
+	 * @param int $sorting_order
+	 * @return Path[]
+	 */
+	public function scandir(bool $excludeSpecial = true, int $sorting_order = SCANDIR_SORT_ASCENDING): array
+	{
+		$items = Driver::scandir($this->path);
+		
+		if ($excludeSpecial)
+		{
+			$items = array_diff(Driver::scandir($this->path), ['.', '..']);
+		}
+		
+		$paths = [];
+		
+		foreach ($items as $item)
+		{
+			$paths[] = $this->append($item);
+		}
+		
+		return $paths;
+	}
+	
+	/**
+	 * @param bool $excludeSpecial
+	 * @param int $sorting_order
+	 * @return Path[]
+	 */
+	public function scandirIfExists(bool $excludeSpecial = true, int $sorting_order = SCANDIR_SORT_ASCENDING): array
+	{
+		if (!$this->isDir())
+		{
+			return [];
+		}
+		
+		return $this->scandir($excludeSpecial, $sorting_order);
 	}
 	
 	public function unlink(): void
@@ -155,18 +196,25 @@ class Path
 		}
 	}
 	
-	public function cleanDirectory(): void
+	public function cleanDirectory(bool $followLink = false): void
 	{
-		if (!$this->isDir())
-			return;
-		
-		$items = array_diff(Driver::scandir($this->path), ['.', '..']);
+		$items = $this->scandirIfExists();
   		
 		foreach ($items as $item) 
 		{
-			$this
-				->append($item)
-				->delete();
+			if ($item->isLink())
+			{
+				if ($followLink && $item->isDir())
+				{
+					$item->delete();
+				}
+				
+				$item->unlink();
+			}
+			else
+			{
+				$item->delete();
+			}
 		}
 	}
 	
@@ -203,7 +251,7 @@ class Path
 			return self::createSkipCheck('//');
 		}
 		
-		return self::createSkipCheck(substr($this->path, 0, $pos - 1));
+		return self::createSkipCheck(substr($this->path, 0, $pos));
 	}
 	
 	public function isRelative(): bool
@@ -254,15 +302,57 @@ class Path
 		return self::createSkipCheck($root . $result);
 	}
 	
-	public function createDir(bool $recursive = true): Dir
+	public function mkdir(bool $recursive = true): Dir
 	{
-		Driver::mkdir($this->path, 0777, $recursive);
-		return new Dir($this->path);
+		if (!$this->isDir())
+		{
+			Driver::mkdir($this->path, 0777, $recursive);
+		}
+		
+		return new Dir($this);
 	}
 	
-	public function createFile(bool $recursive = true): File
+	public function touch(bool $recursive = true): File
 	{
+		$dir = $this->back();
 		
+		if (!$dir->isDir())
+		{
+			if ($recursive)
+			{
+				$dir->mkdir(true);
+			}
+			else
+			{
+				throw new FileSystemException("Can not create file $this because the directory $dir does not exists");
+			}
+		}
+		
+		Driver::touch($this->path);
+		
+		return new File($this);
+	}
+	
+	public function isEmpty(): bool
+	{
+		if ($this->isDir())
+		{
+			$items = Driver::scandir($this->path);
+			return !((bool)array_diff($items, ['.', '..']));
+		}
+		else if ($this->isFile())
+		{
+			return $this->filesize() == 0;
+		}
+		else
+		{
+			return true;
+		}
+	}
+	
+	public function filesize(): int
+	{
+		return Driver::filesize($this->path);
 	}
 	
 	

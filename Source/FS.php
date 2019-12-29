@@ -98,6 +98,48 @@ class FS
 		return Path::realpath(...$path);
 	}
 	
+	public static function delete(...$path): void
+	{
+		self::path(...$path)->delete();
+	}
+	
+	public static function unlink(...$path): void
+	{
+		self::path(...$path)->unlink();
+	}
+	
+	public static function rmdir(...$path): void
+	{
+		self::path(...$path)->rmdir();
+	}
+	
+	/**
+	 * @param string|Path|array $path
+	 * @param bool $recursive
+	 */
+	public static function mkdir($path, bool $recursive = true): void
+	{
+		self::path(...$path)->mkdir($recursive);
+	}
+	
+	public static function touch($path, bool $recursive = true): void
+	{
+		self::path(...$path)->touch($recursive);
+	}
+	
+	public static function filesize(...$path): int
+	{
+		return self::path(...$path)->filesize();
+	}
+	
+	public static function touchAll(array $paths, bool $recursive = true): void
+	{
+		foreach ($paths as $path)
+		{
+			self::path($path)->touch($recursive);
+		}
+	}
+	
 	public static function home(): string
 	{
 		return Path::home();
@@ -121,8 +163,9 @@ class FS
 	/**
 	 * @param string|Path|array $root
 	 * @param array $folders
+	 * @param array $files
 	 */
-	public static function createStructure($root, array $folders): void
+	public static function createStructure($root, array $folders, array $files = []): void
 	{
 		$root = Path::getPathObject($root);
 		
@@ -132,7 +175,17 @@ class FS
 			
 			if (!$folder->exists())
 			{
-				$folder->createDir(true);
+				$folder->mkdir(true);
+			}
+		}
+		
+		foreach ($files as $file)
+		{
+			$file = $root->append($file);
+			
+			if (!$file->exists())
+			{
+				$file->touch(true);
 			}
 		}
 	}

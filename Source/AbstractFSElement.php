@@ -12,7 +12,14 @@ class AbstractFSElement
 	{
 		if ($path)
 		{
-			$this->path = Path::combineToPath(($path ?: '/'));
+			if (count($path) == 1 && reset($path) instanceof Path)
+			{
+				$this->path = clone reset($path);
+			}
+			else
+			{
+				$this->path = Path::combineToPath(($path ?: '/'));
+			}
 		}
 		else
 		{
