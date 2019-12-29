@@ -1,11 +1,11 @@
-<phpunit bootstrap="Tests/boot.php">
+<phpunit>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">Source/</directory>
         </whitelist>
     </filter>
     <testsuites>
-        <testsuite name="SeTaco">
+        <testsuite name="FileSystem">
             <directory>Tests</directory>
         </testsuite>
     </testsuites>
