@@ -49,6 +49,9 @@ class PathTest extends TestCase
 	}
 	
 	
+	/**
+	 * @expectedException \FileSystem\Exceptions\FileSystemException
+	 */
 	public function test_rmdir_DirectoryDoesNotExist()
 	{
 		$path = new Path(__DIR__, 'PathTest/rmdir/not_exist');

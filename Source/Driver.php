@@ -23,7 +23,7 @@ class Driver
 		
 		try
 		{
-			return $callback(...$params);
+			return @$callback(...$params);
 		}
 		finally
 		{
