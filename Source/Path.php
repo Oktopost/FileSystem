@@ -377,13 +377,24 @@ class Path
 	
 	public function resolve(): Path
 	{
-		$root = self::getRootDirectory($this->path);
-		
 		$result = [];
 		$last 	= null;
 		$parts	= explode(DIRECTORY_SEPARATOR, $this->path);
 		
 		$parts = array_values(array_filter($parts));
+		
+		if (($parts[0] ?? '') === '~')
+		{
+			$root = '/';
+			$result = explode(DIRECTORY_SEPARATOR, self::home());
+			$result = array_values(array_filter($result));
+			
+			array_shift($parts);
+		}
+		else
+		{
+			$root = self::getRootDirectory($this->path);
+		}
 		
 		foreach ($parts as $part)
 		{
@@ -403,11 +414,6 @@ class Path
 					$last = $part;
 				}
 			}
-			else if ($part == '~')
-			{
-				$result = explode(DIRECTORY_SEPARATOR, self::home());
-				$result = array_values(array_filter($result));
-			}
 			else
 			{
 				$result[] = $part;
@@ -415,7 +421,7 @@ class Path
 			}
 		}
 		
-		return self::createSkipCheck($root . $result);
+		return self::createSkipCheck($root . implode(DIRECTORY_SEPARATOR, $result));
 	}
 	
 	public function mkdir(bool $recursive = true): Dir

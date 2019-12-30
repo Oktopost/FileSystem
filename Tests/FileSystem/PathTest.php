@@ -273,4 +273,81 @@ class PathTest extends TestCase
 		self::assertEquals(2, (new Path('/abc/def///gh'))->depth());
 		self::assertEquals(1, (new Path('abc////def'))->depth());
 	}
+	
+	
+	public function test_resolve_EmptyStringPassed_ReturnEmptyString()
+	{
+		self::assertEquals('', Path::getPathObject('')->resolve()->get());
+	}
+	
+	public function test_resolve_SingleElementPassed_ReturnSameValue()
+	{
+		self::assertEquals('abc', Path::getPathObject('abc')->resolve()->get());
+	}
+	
+	public function test_resolve_NumberOfElementsPassed_ReturnSameValue()
+	{
+		self::assertEquals('abc/def', Path::getPathObject('abc/def')->resolve()->get());
+	}
+	
+	public function test_resolve_ContainsSingleDot_ReturnEmptyString()
+	{
+		self::assertEquals('', Path::getPathObject('.')->resolve()->get());
+	}
+	
+	public function test_resolve_ContainsSingleDotInPath_RemoveDot()
+	{
+		self::assertEquals('a/b', Path::getPathObject('a/./b')->resolve()->get());
+		self::assertEquals('a/b', Path::getPathObject('./a/b')->resolve()->get());
+		self::assertEquals('a/b', Path::getPathObject('a/b/.')->resolve()->get());
+		self::assertEquals('a/b', Path::getPathObject('a/././b')->resolve()->get());
+	}
+	
+	public function test_resolve_ContainsTwoDots_TwoDotsReturned()
+	{
+		self::assertEquals('..', Path::getPathObject('..')->resolve()->get());
+	}
+	
+	public function test_resolve_ContainsNumberOf2Dots_AllDotsRemain()
+	{
+		self::assertEquals('../../..', Path::getPathObject('../../..')->resolve()->get());
+	}
+	
+	public function test_resolve_ContainsNumberOf2DotsBeforePath_AllDotsRemain()
+	{
+		self::assertEquals('../../../abc/def', Path::getPathObject('../../../abc/def')->resolve()->get());
+	}
+	
+	public function test_resolve_Contains2DotsAfterRoot_2DotsRemoved()
+	{
+		self::assertEquals('/abc/def', Path::getPathObject('/../../../abc/def')->resolve()->get());
+	}
+	
+	public function test_resolve_Contains2DotsInPath_2DotsRemovedAndExtraFoldersRemoved()
+	{
+		self::assertEquals('', Path::getPathObject('a/..')->resolve()->get());
+		self::assertEquals('abc/hello', Path::getPathObject('abc/def/../hello/world/..')->resolve()->get());
+		self::assertEquals('/abc/def', Path::getPathObject('/a/../../../abc/def')->resolve()->get());
+		self::assertEquals('hello/world', Path::getPathObject('abc/def/../../hello/world')->resolve()->get());
+	}
+	
+	public function test_resolve_HomeSignResolvedToHome()
+	{
+		self::assertEquals($_SERVER['HOME'], Path::getPathObject('~')->resolve()->get());
+	}
+	
+	public function test_resolve_HomeDirectoryAfterPath_UsedAsDirectoryName()
+	{
+		self::assertEquals('/a/b/~/hello', Path::getPathObject('/a/b/~/hello')->resolve()->get());
+	}
+	
+	public function test_resolve_HomeDirectoryAsFirstParam_HomeDirectoryResolved()
+	{
+		self::assertEquals($_SERVER['HOME'] . '/hello', Path::getPathObject('~/hello')->resolve()->get());
+	}
+	
+	public function test_resolve_2DotsAfterHomeDir_OnlyOneDirectoryRemoved()
+	{
+		self::assertEquals('/home/hello', Path::getPathObject('~/../hello')->resolve()->get());
+	}
 }
