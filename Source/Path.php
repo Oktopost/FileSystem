@@ -4,6 +4,7 @@ namespace FileSystem;
 
 use FileSystem\Exceptions\FileSystemException;
 use FileSystem\Exceptions\NotADirectoryException;
+use FileSystem\Exceptions\NotAFileException;
 
 
 class Path
@@ -12,7 +13,7 @@ class Path
 	private $path;
 	
 	
-	private static function getRoot(string $source): string
+	private static function getRootDirectory(string $source): string
 	{
 		// Linux rules:
 		// '///' = '/'
@@ -80,7 +81,7 @@ class Path
 				'Invalid parameter passed. Expecting string or \FileSystem\Path object');
 		}
 		
-		$root = $keepRoot ? self::getRoot($source) : '';
+		$root = $keepRoot ? self::getRootDirectory($source) : '';
 		
 		return self::fixSlashes($source, $root);
 	}
@@ -106,6 +107,50 @@ class Path
 	public function __clone()
 	{
 		
+	}
+	
+	
+	public function get(): string
+	{
+		return $this->path;
+	}
+	
+	public function name(): string
+	{
+		$pos = strrpos($this->path, DIRECTORY_SEPARATOR);
+		
+		// Only root object can end with a directory separator. 
+		if ($pos == strlen($this->path) - 1)
+		{
+			return $this->path;
+		}
+		
+		return substr($this->path, $pos + 1);
+	}
+	
+	public function length(): int
+	{
+		return strlen($this->path);
+	}
+	
+	public function depth(): int
+	{
+		$items = explode(DIRECTORY_SEPARATOR, $this->path);
+		$items = array_filter($items);
+		
+		$count = count($items);
+		
+		return $count ? $count - 1 : 0;
+	}
+	
+	public function getRoot(): string
+	{
+		return self::getRootDirectory($this->path);
+	}
+	
+	public function getRootPath(): Path
+	{
+		return new Path($this->getRoot());
 	}
 	
 	
@@ -136,11 +181,11 @@ class Path
 	 */
 	public function scandir(bool $excludeSpecial = true, int $sorting_order = SCANDIR_SORT_ASCENDING): array
 	{
-		$items = Driver::scandir($this->path);
+		$items = Driver::scandir($this->path, $sorting_order);
 		
 		if ($excludeSpecial)
 		{
-			$items = array_diff(Driver::scandir($this->path), ['.', '..']);
+			$items = array_diff($items, ['.', '..']);
 		}
 		
 		$paths = [];
@@ -226,26 +271,26 @@ class Path
 	 * @param string|Path|array ...$to
 	 * @return Path
 	 */
-	public function copy(...$to): Path
+	public function copyFile(...$to): Path
 	{
 		$to = self::getPathObject(...$to);
 		
-		if (!$to->exists())
+		if ($to->exists() && !$to->isFile())
 		{
-			if (!$to->isRoot() && !$to->back()->isDir())
-			{
-				
-			}
+			throw new NotAFileException($this, 'Copy destination must be a file');
 		}
+		
+		$to->back()->mkdir(true);
+		
+		Driver::copy($this->path, $to->path);
 		
 		return $to;
 	}
 	
 	/**
 	 * @param string|Path|array ...$to
-	 * @return Path
 	 */
-	public function copyContent(...$to): Path
+	public function copyContent(...$to): void
 	{
 		if (!$this->isDir())
 		{
@@ -254,23 +299,33 @@ class Path
 		
 		$to = self::getPathObject(...$to);
 		
-		if (!$to->exists())
+		if ($to->exists() && !$to->isDir())
 		{
-			if (!$to->isRoot() && !$to->back()->isDir())
-			{
-				
-			}
+			throw new NotADirectoryException($this->path, "Can copy content only into a directory");
+		}
+		else if (!$to->exists())
+		{
+			$to->mkdir();
 		}
 		
-		return Driver::filesize($this->path);
+		foreach ($this->scandir() as $child)
+		{
+			if ($child->isLink())
+				continue;
+			
+			if ($child->isFile())
+			{
+				$child->copy($to->append($child->name()));
+			}
+			else if ($child->isDir())
+			{
+				$toDir = $to->append($child->name());
+				$toDir->mkdir();
+				$child->copyContent($toDir);
+			}
+		}
 	}
 	
-	
-	
-	public function get(): string
-	{
-		return $this->path;
-	}
 	
 	public function prepend(...$data): Path
 	{
@@ -314,7 +369,7 @@ class Path
 	
 	public function resolve(): Path
 	{
-		$root = self::getRoot($this->path);
+		$root = self::getRootDirectory($this->path);
 		
 		$result = [];
 		$last 	= null;

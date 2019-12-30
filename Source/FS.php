@@ -120,10 +120,6 @@ class FS
 		self::path(...$path)->rmdir();
 	}
 	
-	/**
-	 * @param string|Path|array $path
-	 * @param bool $recursive
-	 */
 	public static function mkdir($path, bool $recursive = true): void
 	{
 		self::path(...$path)->mkdir($recursive);
@@ -165,5 +161,32 @@ class FS
 	public static function cleanDirectory(...$path): void
 	{
 		Path::getPathObject($path)->cleanDirectory();
+	}
+	
+	public static function scandir($path, bool $excludeSpecial = true, int $order = SCANDIR_SORT_ASCENDING): array
+	{
+		return Path::getPathObject($path)->scandir($excludeSpecial, $order);
+	}
+	
+	public static function scandirIfExists($path, bool $excludeSpecial = true, int $order = SCANDIR_SORT_ASCENDING): array
+	{
+		return Path::getPathObject($path)->scandirIfExists($excludeSpecial, $order);
+	}
+	
+	/*
+	public static function copy($from, $to): Path
+	{
+		return Path::getPathObject($from)->copy($to);
+	}
+	*/
+	
+	public static function copyFile($from, $to): Path
+	{
+		return Path::getPathObject($from)->copyFile($to);
+	}
+	
+	public static function copyContent($from, $to): void
+	{
+		Path::getPathObject($from)->copyContent($to);
 	}
 }

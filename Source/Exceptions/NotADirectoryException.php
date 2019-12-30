@@ -2,10 +2,10 @@
 namespace FileSystem\Exceptions;
 
 
-class NotADirectoryException extends FileSystemException
+class NotADirectoryException extends PathException
 {
-	public function __construct(string $path, string $message = "")
+	public function __construct($path, string $message = "")
 	{
-		parent::__construct("'$path' is not a directory! $message");
+		parent::__construct($path, "Is not a directory! $message");
 	}
 }

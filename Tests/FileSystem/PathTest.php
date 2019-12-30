@@ -195,4 +195,82 @@ class PathTest extends TestCase
 		self::assertFalse(file_exists($path->append('hello/world/b.bin')->get()));
 		self::assertTrue(is_dir($path->get()));
 	}
+	
+	
+	public function test_name_EmptyPath_ReturnEmptyString()
+	{
+		self::assertEquals('', (new Path())->name());
+	}
+	
+	public function test_name_PathEndsWithDot_DotReturned()
+	{
+		self::assertEquals('.', (new Path('.'))->name());
+	}
+	
+	public function test_name_RootPath_ReturnRoot()
+	{
+		self::assertEquals('/', (new Path('/'))->name());
+		self::assertEquals('//', (new Path('//'))->name());
+	}
+	
+	public function test_name_SingleNameInPath_SameNameReturned()
+	{
+		self::assertEquals('a', (new Path('a'))->name());
+	}
+	
+	public function test_name_LongPath_ReturnName()
+	{
+		self::assertEquals('abc', (new Path('hello/abc'))->name());
+		self::assertEquals('abc', (new Path('/hello/abc'))->name());
+		self::assertEquals('world', (new Path('//hello/world'))->name());
+		self::assertEquals('world', (new Path('//hello/world/'))->name());
+		self::assertEquals('world', (new Path('//hello///world'))->name());
+	}
+	
+	
+	public function test_length_EmptyPath_Return0()
+	{
+		self::assertEquals(0, (new Path())->length());
+	}
+	
+	public function test_length_WithPath_ReturnLength()
+	{
+		self::assertEquals(3, (new Path('123'))->length());
+	}
+	
+	
+	public function test_depth_EmptyPath_Return0()
+	{
+		self::assertEquals(0, (new Path())->depth());
+	}
+	
+	public function test_depth_RootPath_Return0()
+	{
+		self::assertEquals(0, (new Path('/'))->depth());
+		self::assertEquals(0, (new Path('//'))->depth());
+	}
+	
+	public function test_depth_SignleItem_Return0()
+	{
+		self::assertEquals(0, (new Path('abc'))->depth());
+	}
+	
+	public function test_depth_SingleItemRelativeToRoot_Return1()
+	{
+		self::assertEquals(0, (new Path('/abc'))->depth());
+		self::assertEquals(0, (new Path('//def'))->depth());
+	}
+	
+	public function test_depth_HaveItems_ReturnCorrectDepth()
+	{
+		self::assertEquals(1, (new Path('/abc/def'))->depth());
+		self::assertEquals(1, (new Path('abc/def'))->depth());
+		self::assertEquals(4, (new Path('abc/def/123/~/./'))->depth());
+	}
+	
+	public function test_depth_HasDuplicateSlashes_DuplicatesNotCounted()
+	{
+		self::assertEquals(2, (new Path('/abc/def///gh'))->depth());
+		self::assertEquals(1, (new Path('abc////def'))->depth());
+	}
 }
