@@ -327,11 +327,19 @@ class Path
 	}
 	
 	
+	/**
+	 * @param string|Path|array ...$data
+	 * @return Path
+	 */
 	public function prepend(...$data): Path
 	{
 		return self::combineToPath($data, $this);
 	}
 	
+	/**
+	 * @param string|Path|array ...$data
+	 * @return Path
+	 */
 	public function append(...$data): Path
 	{
 		return self::combineToPath($this, $data);
