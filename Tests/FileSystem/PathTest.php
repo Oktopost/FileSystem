@@ -121,11 +121,11 @@ class PathTest extends TestCase
 		$path->cleanDirectory();
 	}
 	
-	public function test_cleanDirectory_DirectoryHasFiles_()
+	public function test_cleanDirectory_DirectoryHasFiles_FilesRemoved()
 	{
 		$path = new Path(__DIR__ . '/PathTest/cleanDirectory/not_empty');
 		
-		FS::createStructure(
+		FS::create(
 			$path,
 			[],
 			[
@@ -142,6 +142,57 @@ class PathTest extends TestCase
 		
 		self::assertFalse(file_exists($path->append('hello.bin')->get()));
 		self::assertFalse(file_exists($path->append('world.bin')->get()));
+		self::assertTrue(is_dir($path->get()));
+	}
+	
+	public function test_cleanDirectory_DirectoryHasFolders_FoldersRemoved()
+	{
+		$path = new Path(__DIR__ . '/PathTest/cleanDirectory/has_folders');
+		
+		FS::create(
+			$path,
+			[
+				'hello',
+				'world'
+			],
+			[]
+		);
+		
+		
+		self::assertTrue(is_dir($path->append('hello')->get()));
+		self::assertTrue(is_dir($path->append('world')->get()));
+		
+		$path->cleanDirectory();
+		
+		self::assertFalse(is_dir($path->append('hello')->get()));
+		self::assertFalse(is_dir($path->append('world')->get()));
+		self::assertTrue(is_dir($path->get()));
+	}
+	
+	public function test_cleanDirectory_DirectoryHasHierarchy_InternalItemsRemoved()
+	{
+		$path = new Path(__DIR__ . '/PathTest/cleanDirectory/complex');
+		
+		FS::create(
+			$path,
+			[],
+			[
+				'hello/a.bin',
+				'hello/world/b.bin',
+			]
+		);
+		
+		self::assertTrue(is_dir($path->append('hello')->get()));
+		self::assertTrue(is_dir($path->append('hello/world')->get()));
+		self::assertTrue(file_exists($path->append('hello/a.bin')->get()));
+		self::assertTrue(file_exists($path->append('hello/world/b.bin')->get()));
+		
+		$path->cleanDirectory();
+		
+		self::assertFalse(is_dir($path->append('hello')->get()));
+		self::assertFalse(is_dir($path->append('hello/world')->get()));
+		self::assertFalse(file_exists($path->append('hello/a.bin')->get()));
+		self::assertFalse(file_exists($path->append('hello/world/b.bin')->get()));
 		self::assertTrue(is_dir($path->get()));
 	}
 }

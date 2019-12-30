@@ -12,29 +12,36 @@ class FS
 	
 	/**
 	 * @param string|Path|array $root
-	 * @param string|Path|array|null $structure
+	 * @param string|Path|array|null $folders
+	 * @param string|Path|array|null $files
 	 */
-	public static function create($root, $structure = null): void
+	public static function create($root, array $folders = [], array $files = []): void
 	{
-		if (is_null($structure))
+		$root = Path::getPathObject($root);
+		
+		if (!$folders && !$files)
 		{
-			$structure = $root;
-			$root = new Path('/');
-		}
-		else
-		{
-			$root = self::path($root);
+			$folders = [''];
 		}
 		
-		if (!is_array($structure))
+		foreach ($folders as $folder)
 		{
-			$structure = [];
+			$folder = $root->append($folder);
+			
+			if (!$folder->exists())
+			{
+				$folder->mkdir(true);
+			}
 		}
 		
-		foreach ($structure as $item)
+		foreach ($files as $file)
 		{
-			$path = $root->append($item);
-			$path->createDir();
+			$file = $root->append($file);
+			
+			if (!$file->exists())
+			{
+				$file->touch(true);
+			}
 		}
 	}
 	
@@ -158,35 +165,5 @@ class FS
 	public static function cleanDirectory(...$path): void
 	{
 		Path::getPathObject($path)->cleanDirectory();
-	}
-	
-	/**
-	 * @param string|Path|array $root
-	 * @param array $folders
-	 * @param array $files
-	 */
-	public static function createStructure($root, array $folders, array $files = []): void
-	{
-		$root = Path::getPathObject($root);
-		
-		foreach ($folders as $folder)
-		{
-			$folder = $root->append($folder);
-			
-			if (!$folder->exists())
-			{
-				$folder->mkdir(true);
-			}
-		}
-		
-		foreach ($files as $file)
-		{
-			$file = $root->append($file);
-			
-			if (!$file->exists())
-			{
-				$file->touch(true);
-			}
-		}
 	}
 }

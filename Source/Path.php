@@ -3,6 +3,7 @@ namespace FileSystem;
 
 
 use FileSystem\Exceptions\FileSystemException;
+use FileSystem\Exceptions\NotADirectoryException;
 
 
 class Path
@@ -110,9 +111,7 @@ class Path
 	
 	public function exists(): bool
 	{
-		return 
-			Driver::file_exists($this->path) || 
-			Driver::is_dir($this->path);
+		return Driver::file_exists($this->path);
 	}
 	
 	public function isFile(): bool
@@ -218,6 +217,55 @@ class Path
 		}
 	}
 	
+	public function filesize(): int
+	{
+		return Driver::filesize($this->path);
+	}
+	
+	/**
+	 * @param string|Path|array ...$to
+	 * @return Path
+	 */
+	public function copy(...$to): Path
+	{
+		$to = self::getPathObject(...$to);
+		
+		if (!$to->exists())
+		{
+			if (!$to->isRoot() && !$to->back()->isDir())
+			{
+				
+			}
+		}
+		
+		return $to;
+	}
+	
+	/**
+	 * @param string|Path|array ...$to
+	 * @return Path
+	 */
+	public function copyContent(...$to): Path
+	{
+		if (!$this->isDir())
+		{
+			throw new NotADirectoryException($this->path, "Can only copy content of a directory");
+		}
+		
+		$to = self::getPathObject(...$to);
+		
+		if (!$to->exists())
+		{
+			if (!$to->isRoot() && !$to->back()->isDir())
+			{
+				
+			}
+		}
+		
+		return Driver::filesize($this->path);
+	}
+	
+	
 	
 	public function get(): string
 	{
@@ -257,6 +305,11 @@ class Path
 	public function isRelative(): bool
 	{
 		return !$this->path || $this->path[0] != '/';
+	}
+	
+	public function isRoot(): bool
+	{
+		return $this->path == '/' || $this->path == '//';
 	}
 	
 	public function resolve(): Path
@@ -348,11 +401,6 @@ class Path
 		{
 			return true;
 		}
-	}
-	
-	public function filesize(): int
-	{
-		return Driver::filesize($this->path);
 	}
 	
 	
