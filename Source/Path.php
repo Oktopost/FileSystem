@@ -238,7 +238,7 @@ class Path
 	
 	public function cleanDirectory(bool $followLink = false): void
 	{
-		$items = $this->scandirIfExists();
+		$items = $this->scandir();
   		
 		foreach ($items as $item) 
 		{
