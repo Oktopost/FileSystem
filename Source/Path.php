@@ -329,7 +329,12 @@ class Path
 	
 	public function moveFile(...$to): Path
 	{
-		// TODO
+		$to = self::getPathObject($to);
+		$to->back()->mkdir();
+		
+		Driver::rename($this->path, $to->path);
+		
+		return $to;
 	}
 	
 	public function move(...$to): Path
@@ -339,7 +344,13 @@ class Path
 	
 	public function moveInto(...$directory): Path
 	{
-		// TODO
+		$into = self::getPathObject($directory);
+		$into->mkdir();
+		$intoPath = $into->append($this->name());
+		
+		Driver::rename($this->path, $intoPath->path);
+		
+		return $intoPath;
 	}
 	
 	
