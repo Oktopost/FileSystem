@@ -4,8 +4,57 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "aa1e8c0d058ee7ed32024747127d918d",
+    "content-hash": "4b01b708f0a85164f091c145a02a8994",
     "packages": [
+        {
+            "name": "oktopost/objection",
+            "version": "1.0.13",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Oktopost/Objection.git",
+                "reference": "ed779b56a96e395ae1c16273f73cf5e16a0f79f3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Oktopost/Objection/zipball/ed779b56a96e395ae1c16273f73cf5e16a0f79f3",
+                "reference": "ed779b56a96e395ae1c16273f73cf5e16a0f79f3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.5-stable",
+                "unstable-cacao/traitor": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Objection": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Puchkov",
+                    "email": "alexey@oktopost.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Marina Sherstuk",
+                    "email": "marinashers@gmail.com",
+                    "role": "Developer"
+                },
+                {
+                    "name": "Daniel Podrabinek",
+                    "email": "dpodrabinek@oktopost.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Objects in PHP",
+            "homepage": "https://github.com/Oktopost/Objection",
+            "time": "2017-10-19T05:25:35+00:00"
+        },
         {
             "name": "oktopost/unit-cover",
             "version": "1.0.0",
@@ -33,6 +82,49 @@
                 }
             ],
             "time": "2018-04-12T08:48:53+00:00"
+        },
+        {
+            "name": "unstable-cacao/structura",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/unstable-cacao/Structura.git",
+                "reference": "c63128c130c9fd7adfb8d48126c10943a14026b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/unstable-cacao/Structura/zipball/c63128c130c9fd7adfb8d48126c10943a14026b1",
+                "reference": "c63128c130c9fd7adfb8d48126c10943a14026b1",
+                "shasum": ""
+            },
+            "require": {
+                "oktopost/objection": "^1.0",
+                "php": ">=7.1"
+            },
+            "require-dev": {
+                "oktopost/unit-cover": "^1.0",
+                "phpunit/phpunit": "^6.2",
+                "satooshi/php-coveralls": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Structura": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Alexey Puchkov",
+                    "email": "alexey.pkv@gmail.com",
+                    "role": "Developer"
+                }
+            ],
+            "homepage": "https://github.com/unstable-cacao/Structura",
+            "time": "2019-12-30T15:58:14+00:00"
         },
         {
             "name": "unstable-cacao/traitor",
