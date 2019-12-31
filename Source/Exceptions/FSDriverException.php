@@ -13,6 +13,6 @@ class FSDriverException extends \Exception
 		$message = $message ? "$message: " : '';
 		$message .= "`" . $last['message'] . "`";
 		
-		throw new FileSystemException($message, $last['type'] ?? 0);
+		throw new FSDriverException($message, $last['type'] ?? 0);
 	}
 }
