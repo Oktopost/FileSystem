@@ -30,6 +30,6 @@ class AbstractFSElement
 	
 	public function getPath(): Path
 	{
-		return $this->path;
+		return clone $this->path;
 	}
 }

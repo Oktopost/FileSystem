@@ -3,6 +3,7 @@ namespace FileSystem;
 
 
 use FileSystem\Exceptions\FileSystemException;
+use FileSystem\Exceptions\FSDriverException;
 use FileSystem\Exceptions\NotADirectoryException;
 use FileSystem\Exceptions\NotAFileException;
 
@@ -218,6 +219,11 @@ class Path
 		Driver::unlink($this->path);
 	}
 	
+	public function tryUnlink(): void
+	{
+		try { $this->unlink(); } catch (FSDriverException $e) {}
+	}
+	
 	public function rmdir(): void
 	{
 		Driver::rmdir($this->path);
@@ -326,6 +332,26 @@ class Path
 		}
 	}
 	
+	public function copy(...$to): Path
+	{
+		// TODO
+	}
+	
+	public function moveFile(...$to): Path
+	{
+		// TODO
+	}
+	
+	public function move(...$to): Path
+	{
+		// TODO
+	}
+	
+	public function moveInto(...$directory): Path
+	{
+		// TODO
+	}
+	
 	
 	/**
 	 * @param string|Path|array ...$data
@@ -373,6 +399,21 @@ class Path
 	public function isRoot(): bool
 	{
 		return $this->path == '/' || $this->path == '//';
+	}
+	
+	public function isReadable(): bool
+	{
+		return Driver::is_readable($this->path);
+	}
+	
+	public function isWritable(): bool
+	{
+		return Driver::is_writable($this->path);
+	}
+	
+	public function isExecutable(): bool
+	{
+		return Driver::is_executable($this->path);
 	}
 	
 	public function resolve(): Path
@@ -477,7 +518,11 @@ class Path
 	{
 		if ($from instanceof Path)
 		{
-			return $from;
+			return clone $from;
+		}
+		else if ($from instanceof AbstractFSElement)
+		{
+			return $from->getPath();
 		}
 		else if (is_array($from) && $from && reset($from) instanceof Path)
 		{
