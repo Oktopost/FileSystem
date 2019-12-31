@@ -68,7 +68,7 @@ class TempFile
 	}
 	
 	
-	private function create($in, bool $touch = false): TempFile
+	public static function create($in, bool $touch = false): TempFile
 	{
 		$dir = Path::getPathObject($in);
 		$name = '_ok_fs_' . Random::string(64) . '.tmp';
