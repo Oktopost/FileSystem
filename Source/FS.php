@@ -168,11 +168,6 @@ class FS
 		return Path::getPathObject($path)->scandir($excludeSpecial, $order);
 	}
 	
-	public static function scandirIfExists($path, bool $excludeSpecial = true, int $order = SCANDIR_SORT_ASCENDING): array
-	{
-		return Path::getPathObject($path)->scandirIfExists($excludeSpecial, $order);
-	}
-	
 	/*
 	public static function copy($from, $to): Path
 	{

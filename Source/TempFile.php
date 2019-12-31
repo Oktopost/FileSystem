@@ -32,13 +32,12 @@ class TempFile
 			{
 				throw new PathException($path, 'Can not create a temporary file in place of a directory');
 			}
-			
-			$this->wasUnlinked = false;
 		}
-		else
-		{
-			$this->wasUnlinked = true;
-		}
+	}
+	
+	public function __toString()
+	{
+		return (string)$this->path();
 	}
 	
 	
@@ -68,10 +67,11 @@ class TempFile
 	}
 	
 	
-	public static function create($in, bool $touch = false): TempFile
+	public static function create($in, bool $touch = false, 
+		?string $prefix = '_ok_fs_', ?string $suffix = '.tmp'): TempFile
 	{
 		$dir = Path::getPathObject($in);
-		$name = '_ok_fs_' . Random::string(64) . '.tmp';
+		$name = $prefix . Random::string(64) . $suffix;
 		
 		$path = $dir->append($name);
 		$temp = new TempFile($path);

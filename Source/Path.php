@@ -182,6 +182,11 @@ class Path
 	 */
 	public function scandir(bool $excludeSpecial = true, int $sorting_order = SCANDIR_SORT_ASCENDING): array
 	{
+		if (!$this->isDir())
+		{
+			return [];
+		}
+		
 		$items = Driver::scandir($this->path, $sorting_order);
 		
 		if ($excludeSpecial)
@@ -197,21 +202,6 @@ class Path
 		}
 		
 		return $paths;
-	}
-	
-	/**
-	 * @param bool $excludeSpecial
-	 * @param int $sorting_order
-	 * @return Path[]
-	 */
-	public function scandirIfExists(bool $excludeSpecial = true, int $sorting_order = SCANDIR_SORT_ASCENDING): array
-	{
-		if (!$this->isDir())
-		{
-			return [];
-		}
-		
-		return $this->scandir($excludeSpecial, $sorting_order);
 	}
 	
 	public function unlink(): void
