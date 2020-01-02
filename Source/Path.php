@@ -353,6 +353,11 @@ class Path
 		return $intoPath;
 	}
 	
+	public function chmod(int $mod): void
+	{
+		Driver::chmod($this->get(), $mod);
+	}
+	
 	
 	/**
 	 * @param string|Path|array ...$data
